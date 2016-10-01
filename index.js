@@ -21,40 +21,58 @@ class Bot extends EventEmitter {
   getProfile (id, cb) {
     if (!cb) cb = Function.prototype
 
-    request({
-      method: 'GET',
-      uri: `https://graph.facebook.com/v2.6/${id}`,
-      qs: {
-        fields: 'first_name,last_name,profile_pic,locale,timezone,gender',
-        access_token: this.token
-      },
-      json: true
-    }, (err, res, body) => {
-      if (err) return cb(err)
-      if (body.error) return cb(body.error)
+    return new Promise((resolve, reject) => {
+      request({
+        method: 'GET',
+        uri: `https://graph.facebook.com/v2.6/${id}`,
+        qs: {
+          fields: 'first_name,last_name,profile_pic,locale,timezone,gender',
+          access_token: this.token
+        },
+        json: true
+      }, (err, res, body) => {
+        if (err) {
+          reject(err)
+          return cb(err)
+        }
+        if (body.error) {
+          reject(body.error)
+          return cb(body.error)
+        }
 
-      cb(null, body)
+        cb(null, body)
+        resolve(body)
+      })
     })
   }
 
   sendMessage (recipient, payload, cb) {
     if (!cb) cb = Function.prototype
 
-    request({
-      method: 'POST',
-      uri: 'https://graph.facebook.com/v2.6/me/messages',
-      qs: {
-        access_token: this.token
-      },
-      json: {
-        recipient: { id: recipient },
-        message: payload
-      }
-    }, (err, res, body) => {
-      if (err) return cb(err)
-      if (body.error) return cb(body.error)
+    return new Promise((resolve, reject) => {
+      request({
+        method: 'POST',
+        uri: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {
+          access_token: this.token
+        },
+        json: {
+          recipient: { id: recipient },
+          message: payload
+        }
+      }, (err, res, body) => {
+        if (err) {
+          reject(err)
+          return cb(err)
+        }
+        if (body.error) {
+          reject(body.error)
+          return cb(body.error)
+        }
 
-      cb(null, body)
+        cb(null, body)
+        resolve(body)
+      })
     })
   }
 

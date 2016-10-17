@@ -76,6 +76,36 @@ class Bot extends EventEmitter {
     })
   }
 
+  sendPayload (recipient, payload, cb) {
+    if (!cb) cb = Function.prototype
+
+    return new Promise((resolve, reject) => {
+      var body = Object.assign({
+        recipient: { id: recipient }
+      }, payload)
+      request({
+        method: 'POST',
+        uri: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {
+          access_token: this.token
+        },
+        json: body
+      }, (err, res, body) => {
+        if (err) {
+          reject(err)
+          return cb(err)
+        }
+        if (body.error) {
+          reject(body.error)
+          return cb(body.error)
+        }
+
+        cb(null, body)
+        resolve(body)
+      })
+    })
+  }
+
   middleware () {
     return (req, res) => {
       // we always write 200, otherwise facebook will keep retrying the request
